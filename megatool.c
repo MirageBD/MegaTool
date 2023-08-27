@@ -149,15 +149,30 @@ int main(int argc, char * argv[])
 			printf("    Filesize %2d: %d\n", i, filesize);
 		}
 
+		// then write all addresses into header
+		for(int i=0; i<numInFiles; i++)
+		{
+			uint startaddress =	myInFiles[i].data[0] +
+								(myInFiles[i].data[1] << 8) +
+								(myInFiles[i].data[2] << 16) +
+								(myInFiles[i].data[3] << 24);
+			target[totalsize+0] = myInFiles[i].data[0];
+			target[totalsize+1] = myInFiles[i].data[1];
+			target[totalsize+2] = myInFiles[i].data[2];
+			target[totalsize+3] = myInFiles[i].data[3];
+			totalsize += 4;
+			printf("    StartAddress %2d: %d\n", i, startaddress);
+		}
+
 		printf("Done writing IFFL header.\n");
 		printf("Populating IFFL files.\n");
 
 		for(int i=0; i<numInFiles; i++)
 		{
 			printf("    %d\n", i);
-			for(int j=0; j<myInFiles[i].size; j++)
+			for(int j=0; j<myInFiles[i].size-4; j++)
 			{
-				target[totalsize+j] = myInFiles[i].data[j];
+				target[totalsize+j] = myInFiles[i].data[j+4];
 			}
 			totalsize += myInFiles[i].size;
 		}
