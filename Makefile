@@ -13,7 +13,7 @@ run: all
 	./megatool -a ./bin/test.bin 00020000
 	./megatool -a ./bin/test2.bin 00010000
 	./megatool -a ./bin/test3.bin 00001400
-	./megatool -c ./bin/test.bin.addr
+	./megatool -c ./bin/test.bin.addr > test.crunch.txt
 	./megatool -c ./bin/test2.bin.addr
 	./megatool -c ./bin/test3.bin.addr
-	./megatool -i ./bin/test.bin.addr ./bin/test2.bin.addr ./bin/alldata.bin
+	./megatool -i ./bin/test.bin.addr.mc ./bin/test2.bin.addr.mc ./bin/alldata.bin

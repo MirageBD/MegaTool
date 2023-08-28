@@ -597,6 +597,15 @@ int writeOutput()
 	int maxDiff = 0;
 	bool needCopyBit = true;
 
+	// 01 02 03 04     01 02    01 02 03     01 02 03 04 01 02     03 04     05
+
+	// $0000: Lit(4, F)
+	// $0004: Mat(4, 2, F)
+	// $0006: Mat(6, 3, T)
+	// $0009: Mat(9, 6, T)
+	// $000f: Mat(4, 2, T)
+	// $0011: Lit(1, F)
+
 	for (i = 0; i < ibufSize;)
 	{
 		uint link = context[i].next;
@@ -609,7 +618,7 @@ int writeOutput()
 			// Put Match
 			uint len = link - i;
 
-			log("$%04x: Mat(%i, %i)\n", i, len, offset);
+			// printf("$%04x: Mat(%i, %i, %c)\n", i, offset, len, needCopyBit ? 'T' : 'F');
   
 			if(needCopyBit)
 			{
@@ -631,7 +640,7 @@ int writeOutput()
 			{
 				uint len = litLen < 255 ? litLen : 255;
 
-				log("$%04x: Lit(%i)\n", i, len);
+				// printf("$%04x: Lit(%i, %c)\n", i, len, litLen == 255 ? 'T' : 'F');
 
 				wbit(0);
 				wlength(len);
@@ -707,13 +716,13 @@ bool crunch(File *aSource, File *aTarget, uint address, bool isRelocated)
 	printf("Original size:           0x%08X\n", ibufSize);
 	printf("Original end address:    0x%08X\n", startAddress+ibufSize);
 	
-	uint packedAddress = startAddress + (ibufSize - packLen - 2 + margin);
+	uint packedAddress = startAddress + (ibufSize - packLen - 6 + margin);
 
 	printf("Original packed address: 0x%08X\n", packedAddress);
 
 	if (isRelocated)
 	{
-		packedAddress = (address + ibufSize) - packLen - 4;
+		packedAddress = (address + ibufSize) - packLen - 8;
 		printf("\nRelocated file to:       0x%08X\n", packedAddress);
 	}
 
