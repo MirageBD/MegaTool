@@ -53,7 +53,7 @@ int main(int argc, char * argv[])
 
 		if(!readFile(&myInFile, argv[2]))
 		{
-			printf("Error Opening file \"%s\", aborting.\n", argv[1]);
+			printf("Error Opening file \"%s\", aborting.\n", argv[2]);
 			return -1;
 		}
 
@@ -109,24 +109,24 @@ int main(int argc, char * argv[])
 
 		for(int i=0; i<numInFiles; i++)
 		{
-			printf("    %d\n", i);
 			char* filename = argv[i+2];
 			if(!readFile(&myInFiles[i], filename))
 			{
 				printf("Error Opening file \"%s\", aborting.\n", filename);
 				return -1;
 			}
-			totalsize += myInFiles[i].size;
+			printf("    %2d: %08X\n", i, myInFiles[i].size);
+			totalsize += myInFiles[i].size - 4;
 		}
 
-		totalsize += 1 + 4 * numInFiles;
+		totalsize += 1 + 8 * numInFiles;
 
 		File *aTarget = &myOutFile;
 		aTarget->size = totalsize;
 		aTarget->data = (byte*)malloc(totalsize);
 		byte* target = aTarget->data;
 
-		printf("Calculated total size: %d\n", totalsize);
+		printf("Calculated total size: 0x%08X\n\n", totalsize);
 
 		printf("Populating IFFL header.\n");
 
@@ -137,47 +137,41 @@ int main(int argc, char * argv[])
 
 		totalsize++;
 
-		// then write all sizes into header
+		// then write all sizes and start addresses into header
 		for(int i=0; i<numInFiles; i++)
 		{
-			size_t filesize = myInFiles[i].size;
-			target[totalsize+0] = (filesize      ) & 0xff;
-			target[totalsize+1] = (filesize >>  8) & 0xff;
-			target[totalsize+2] = (filesize >> 16) & 0xff;
-			target[totalsize+3] = (filesize >> 24) & 0xff;
-			totalsize += 4;
-			printf("    Filesize %2d: %d\n", i, filesize);
-		}
-
-		// then write all addresses into header
-		for(int i=0; i<numInFiles; i++)
-		{
+			size_t filesize = myInFiles[i].size - 4;
 			uint startaddress =	myInFiles[i].data[0] +
 								(myInFiles[i].data[1] << 8) +
 								(myInFiles[i].data[2] << 16) +
 								(myInFiles[i].data[3] << 24);
+
 			target[totalsize+0] = myInFiles[i].data[0];
 			target[totalsize+1] = myInFiles[i].data[1];
 			target[totalsize+2] = myInFiles[i].data[2];
 			target[totalsize+3] = myInFiles[i].data[3];
-			totalsize += 4;
-			printf("    StartAddress %2d: %d\n", i, startaddress);
+			target[totalsize+4] = (filesize      ) & 0xff;
+			target[totalsize+5] = (filesize >>  8) & 0xff;
+			target[totalsize+6] = (filesize >> 16) & 0xff;
+			target[totalsize+7] = (filesize >> 24) & 0xff;
+			totalsize += 8;
+			printf("    File %2d - StartAddress: 0x%08X, FileSize: 0x%08X \n", i, startaddress, filesize);
 		}
 
-		printf("Done writing IFFL header.\n");
+		printf("Done writing IFFL header.\n\n");
 		printf("Populating IFFL files.\n");
 
 		for(int i=0; i<numInFiles; i++)
 		{
-			printf("    %d\n", i);
 			for(int j=0; j<myInFiles[i].size-4; j++)
 			{
 				target[totalsize+j] = myInFiles[i].data[j+4];
 			}
-			totalsize += myInFiles[i].size;
+			totalsize += myInFiles[i].size - 4;
+			printf("    %2d: file written\n", i);
 		}
 
-		printf("Done populating IFFL files.\n");
+		printf("Done populating IFFL files.\n\n");
 
 		if(!writeFile(&myOutFile, argv[argc-1], "\0"))
 		{

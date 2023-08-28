@@ -16,4 +16,4 @@ run: all
 	./megatool -c ./bin/test.bin.addr
 	./megatool -c ./bin/test2.bin.addr
 	./megatool -c ./bin/test3.bin.addr
-	./megatool -i ./bin/test.bin.addr.mc ./bin/test2.bin.addr.mc ./bin/test3.bin.addr.mc ./bin/alldata.bin
+	./megatool -i ./bin/test.bin.addr ./bin/test2.bin.addr ./bin/alldata.bin
