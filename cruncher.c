@@ -67,6 +67,8 @@ uint		curIndex;
 
 void wbit(uint bit)
 {
+	// printf("writing bit: %d\n", bit & 1);
+
 	if(curCnt == 0)
 	{
 		obuf[curIndex] = curByte;
@@ -597,15 +599,6 @@ int writeOutput()
 	int maxDiff = 0;
 	bool needCopyBit = true;
 
-	// 01 02 03 04     01 02    01 02 03     01 02 03 04 01 02     03 04     05
-
-	// $0000: Lit(4, F)
-	// $0004: Mat(4, 2, F)
-	// $0006: Mat(6, 3, T)
-	// $0009: Mat(9, 6, T)
-	// $000f: Mat(4, 2, T)
-	// $0011: Lit(1, F)
-
 	for (i = 0; i < ibufSize;)
 	{
 		uint link = context[i].next;
@@ -618,7 +611,7 @@ int writeOutput()
 			// Put Match
 			uint len = link - i;
 
-			// printf("$%04x: Mat(%i, %i, %c)\n", i, offset, len, needCopyBit ? 'T' : 'F');
+			printf("$%04x: Mat(offset = %i, length = %i, %c)\n", i, -offset, len, needCopyBit ? 'T' : 'F');
   
 			if(needCopyBit)
 			{
@@ -640,7 +633,7 @@ int writeOutput()
 			{
 				uint len = litLen < 255 ? litLen : 255;
 
-				// printf("$%04x: Lit(%i, %c)\n", i, len, litLen == 255 ? 'T' : 'F');
+				printf("$%04x: Lit(length = %i, %c)\n", i, len, litLen == 255 ? 'T' : 'F');
 
 				wbit(0);
 				wlength(len);
