@@ -611,7 +611,7 @@ int writeOutput()
 			// Put Match
 			uint len = link - i;
 
-			printf("$%04x: Mat(offset = %i, length = %i, %c)\n", i, -offset, len, needCopyBit ? 'T' : 'F');
+			// printf("$%04x: Mat(offset = %i, length = %i, %c)\n", i, -offset, len, needCopyBit ? 'T' : 'F');
   
 			if(needCopyBit)
 			{
@@ -633,7 +633,7 @@ int writeOutput()
 			{
 				uint len = litLen < 255 ? litLen : 255;
 
-				printf("$%04x: Lit(length = %i, %c)\n", i, len, litLen == 255 ? 'T' : 'F');
+				// printf("$%04x: Lit(length = %i, %c)\n", i, len, litLen == 255 ? 'T' : 'F');
 
 				wbit(0);
 				wlength(len);
@@ -709,7 +709,8 @@ bool crunch(File *aSource, File *aTarget, uint address, bool isRelocated)
 	printf("Original size:           0x%08X\n", ibufSize);
 	printf("Original end address:    0x%08X\n", startAddress+ibufSize);
 	
-	uint packedAddress = startAddress + (ibufSize - packLen - 6 + margin);
+	 // -4 was -6 to end exactly at the end of the file, but it looks like I need 2 extra bytes overflow
+	uint packedAddress = startAddress + (ibufSize - packLen - 4 + margin);
 
 	printf("Original packed address: 0x%08X\n", packedAddress);
 
