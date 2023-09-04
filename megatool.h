@@ -14,6 +14,6 @@ typedef unsigned int uint;
 
 typedef enum { false = 0, true = 1 } bool;
 
-#define memSize 65536
+#define memSize 393216 // $60000 for M65 for now
 
 #endif // _bb_h_

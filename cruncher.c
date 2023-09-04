@@ -611,7 +611,7 @@ int writeOutput()
 			// Put Match
 			uint len = link - i;
 
-			// printf("$%04x: Mat(offset = %i, length = %i, %c)\n", i, -offset, len, needCopyBit ? 'T' : 'F');
+			// printf("$%06x -> $%06x: Mat(offset = %i, length = %i, %c)\n", curIndex, i, -offset, len, needCopyBit ? 'T' : 'F');
   
 			if(needCopyBit)
 			{
@@ -633,7 +633,7 @@ int writeOutput()
 			{
 				uint len = litLen < 255 ? litLen : 255;
 
-				// printf("$%04x: Lit(length = %i, %c)\n", i, len, litLen == 255 ? 'T' : 'F');
+				// printf("$%06x -> $%06x: Lit(length = %i, %c)\n", curIndex, i, len, litLen == 255 ? 'T' : 'F');
 
 				wbit(0);
 				wlength(len);
@@ -655,6 +655,8 @@ int writeOutput()
 		}
 	}
 
+	// printf("$%06x - Writing length FF\n", curIndex);
+	
 	wbit(1);
 	wlength(0xff);
 	wflush();
