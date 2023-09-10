@@ -4,6 +4,13 @@
 
 ; -----------------------------------------------------------------------------------------------
 
+; $000000 -> $000000: Lit(length = 21, F)
+; $000001 -> $000015: Mat(offset = -12, length = 2, F)
+; $000017 -> $000017: Lit(length = 1, F)
+; $000017 -> $000018: Mat(offset = -5, length = 3, F)
+; $000019 -> $00001b: Mat(offset = -11, length = 2, T)
+; $00001a -> $00001d: Lit(length = 8, F)
+
 .segment "ZEROPAGE" : zeropage
 
 dc_bits		= $02
@@ -11,9 +18,6 @@ dc_get_zp	= $04
 
 dloop
 		jsr getnextbit									; after this, carry is 0, bits = 01010101
-
-		jmp $2014
-
 		bcs match
 
 		jsr getlen										; Literal run.. get length. after this, carry = 0, bits = 10101010, A = 1
@@ -38,9 +42,9 @@ addget	clc
 		lda z:dc_lsrc+1
 		adc #$00
 		sta z:dc_lsrc+1
-		lda z:dc_lsrc+2
-		adc #$00
-		sta z:dc_lsrc+2
+		;lda z:dc_lsrc+2								; THIS SHOULD BE SAFE TO COMMENT OUT BECAUSE LSRC WILL NEVER CROSS THIS?
+		;adc #$00
+		;sta z:dc_lsrc+2
 
 		jsr addput
 

@@ -22,7 +22,7 @@ all: $(OBJECTS)
 run: all
 	./megatool
 	./megatool -a ./bin/boot.prg 00002100
-	./megatool -c -e 00002100 ./bin/boot.prg.addr
+	./megatool -c -e 00002100 ./bin/boot.prg.addr > test.crunch.txt
 
 	cmd.exe /c $(XMEGA65) -prg ./bin/boot.prg.addr.mc
 

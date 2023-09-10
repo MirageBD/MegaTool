@@ -613,7 +613,7 @@ int writeOutput()
 			// Put Match
 			uint len = link - i;
 
-			printf("$%06x -> $%06x: Mat(offset = %i, length = %i, %c)\n", curIndex, i, -offset, len, needCopyBit ? 'T' : 'F');
+			// printf("$%06x -> $%06x: Mat(offset = %i, length = %i, %c)\n", curIndex, i, -offset, len, needCopyBit ? 'T' : 'F');
   
 			if(needCopyBit)
 			{
@@ -635,7 +635,7 @@ int writeOutput()
 			{
 				uint len = litLen < 255 ? litLen : 255;
 
-				printf("$%06x -> $%06x: Lit(length = %i, %c)\n", curIndex, i, len, litLen == 255 ? 'T' : 'F');
+				// printf("$%06x -> $%06x: Lit(length = %i, %c)\n", curIndex, i, len, litLen == 255 ? 'T' : 'F');
 
 				wbit(0);
 				wlength(len);
@@ -760,8 +760,8 @@ bool crunch(File *aSource, File *aTarget, uint address, bool isExecutable, bool 
 		decrCode[decrunchinitlength + asm_dc_mdst   +  1] = aSource->data[1];
 		decrCode[decrunchinitlength + asm_dc_mdst   +  2] = 0;
 
-		decrCode[decrunchinitlength + asm_dc_jumpto + 1] = address      &  0xff;
-		decrCode[decrunchinitlength + asm_dc_jumpto + 2] = address      >> 8;
+		decrCode[decrunchinitlength + asm_dc_jumpto +  1] = address      &  0xff;
+		decrCode[decrunchinitlength + asm_dc_jumpto +  2] = address      >> 8;
 
 		target[0] = 0x01;
 		target[1] = 0x20;
