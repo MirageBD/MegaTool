@@ -83,6 +83,9 @@ dc_depackfrom
 			lda #$80
 			sta $02
 
+			inc $d020
+			jmp *-3
+
 			jmp $0008
 
 decruncher

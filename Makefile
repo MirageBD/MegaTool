@@ -21,10 +21,10 @@ all: $(OBJECTS)
 
 run: all
 	./megatool
-	./megatool -a ./bin/test2.bin 00004000
-	./megatool -c -e 00002014 ./bin/test2.bin.addr
+	./megatool -a ./bin/boot.prg 00002100
+	./megatool -c -e 00002100 ./bin/boot.prg.addr
 
-	cmd.exe /c $(XMEGA65) -prg ./bin/test2.bin.addr.mc
+	cmd.exe /c $(XMEGA65) -prg ./bin/boot.prg.addr.mc
 
 #	./megatool -a ./bin/test.bin 00020000
 #	./megatool -a ./bin/test2.bin 00010000

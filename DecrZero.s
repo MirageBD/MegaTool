@@ -11,6 +11,9 @@ dc_get_zp	= $04
 
 dloop
 		jsr getnextbit									; after this, carry is 0, bits = 01010101
+
+		jmp $2014
+
 		bcs match
 
 		jsr getlen										; Literal run.. get length. after this, carry = 0, bits = 10101010, A = 1
