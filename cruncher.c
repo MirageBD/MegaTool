@@ -34,6 +34,8 @@
 #define MAX_OFFSET			LEN_LONG_3
 #define MAX_OFFSET_SHORT	LEN_SHORT_3
 
+#include "DecrZero.h"
+
 byte		*ibuf;
 byte		*obuf;
 uint		ibufSize;
@@ -611,7 +613,7 @@ int writeOutput()
 			// Put Match
 			uint len = link - i;
 
-			// printf("$%06x -> $%06x: Mat(offset = %i, length = %i, %c)\n", curIndex, i, -offset, len, needCopyBit ? 'T' : 'F');
+			printf("$%06x -> $%06x: Mat(offset = %i, length = %i, %c)\n", curIndex, i, -offset, len, needCopyBit ? 'T' : 'F');
   
 			if(needCopyBit)
 			{
@@ -633,7 +635,7 @@ int writeOutput()
 			{
 				uint len = litLen < 255 ? litLen : 255;
 
-				// printf("$%06x -> $%06x: Lit(length = %i, %c)\n", curIndex, i, len, litLen == 255 ? 'T' : 'F');
+				printf("$%06x -> $%06x: Lit(length = %i, %c)\n", curIndex, i, len, litLen == 255 ? 'T' : 'F');
 
 				wbit(0);
 				wlength(len);
@@ -666,7 +668,7 @@ int writeOutput()
 	return margin;
 }
 
-bool crunch(File *aSource, File *aTarget, uint address, bool isRelocated)
+bool crunch(File *aSource, File *aTarget, uint address, bool isExecutable, bool isRelocated)
 {
 	uint i;
 	byte *target;
@@ -698,48 +700,129 @@ bool crunch(File *aSource, File *aTarget, uint address, bool isRelocated)
 	uint fileLen = put;
 	uint decrLen = 0;
 
-	fileLen += 8;
+	printf("packLen = 0x%08X\n", packLen);
+
+	if(isExecutable)
+	{
+		decrLen = decruncherlength;
+		fileLen += decrLen + 4;
+		printf("decrLen = 0x%08X\n", decrLen);
+	}
+	else
+	{
+		fileLen += 8;
+	}
+
+	printf("fileLen = 0x%08X\n", fileLen);
 
 	aTarget->size = fileLen;
 	aTarget->data = (byte*)malloc(aTarget->size);
 	target = aTarget->data;
 
-	uint startAddress = (aSource->data[3] << 24) | (aSource->data[2] << 16) | (aSource->data[1] << 8) | aSource->data[0];
-
-	printf("\n");
-	printf("Original address:        0x%08X\n", startAddress);
-	printf("Original size:           0x%08X\n", ibufSize);
-	printf("Original end address:    0x%08X\n", startAddress+ibufSize);
-	
-	 // -4 was -6 to end exactly at the end of the file, but it looks like I need 2 extra bytes overflow
-	uint packedAddress = startAddress + (ibufSize - packLen - 4 + margin);
-
-	printf("Original packed address: 0x%08X\n", packedAddress);
-
-	if (isRelocated)
+	if(isExecutable)
 	{
-		packedAddress = (address + ibufSize) - packLen - 8;
-		printf("\nRelocated file to:       0x%08X\n", packedAddress);
+		// uint startAddress = 0x10000 - packLen;
+		// uint transfAddress = fileLen + 0x2001 - 0x0101;
+
+		uint transferfrom = 0x2001 + decruncherlength;
+		uint transferto = 0x60000 - packLen - 1;
+
+		printf("transferfrom = 0x%08X\n", transferfrom);
+		printf("transferto = 0x%08X\n", transferto);
+		printf("asm_dc_dst = 0x%08X\n", aSource->data[1] * 256 + aSource->data[0]);
+		printf("decrunchinitlength = 0x%08X\n", decrunchinitlength);
+
+		decrCode[asm_dc_transferlen  - 0x1800       +  0] = packLen        &  0xff;
+		decrCode[asm_dc_transferlen  - 0x1800       +  1] = packLen        >> 8;
+
+		decrCode[asm_dc_transferfrom - 0x1800       +  0] = transferfrom   &  0xff;
+		decrCode[asm_dc_transferfrom - 0x1800       +  1] = transferfrom   >> 8;
+		decrCode[asm_dc_transferfrom - 0x1800       +  2] = transferfrom   >> 16;
+
+		decrCode[asm_dc_transferto   - 0x1800       +  0] = transferto     &  0xff;
+		decrCode[asm_dc_transferto   - 0x1800       +  1] = transferto     >> 8;
+		decrCode[asm_dc_transferto   - 0x1800       +  2] = transferto     >> 16;
+
+		decrCode[asm_dc_depackfrom   - 0x1800       +  1] = transferto     &  0xff;
+		decrCode[asm_dc_depackfrom   - 0x1800       +  5] = transferto     >> 8;
+		decrCode[asm_dc_depackfrom   - 0x1800       +  9] = transferto     >> 16;
+		decrCode[asm_dc_depackfrom   - 0x1800       + 13] = transferto     >> 24;
+
+		decrCode[decrunchinitlength + asm_dc_lsrc   +  0] = transferto &  0xff;
+		decrCode[decrunchinitlength + asm_dc_lsrc   +  1] = transferto >> 8;
+		decrCode[decrunchinitlength + asm_dc_lsrc   +  2] = transferto >> 16;
+
+		decrCode[decrunchinitlength + asm_dc_ldst   +  0] = aSource->data[0];
+		decrCode[decrunchinitlength + asm_dc_ldst   +  1] = aSource->data[1];
+		decrCode[decrunchinitlength + asm_dc_ldst   +  2] = 0;
+
+		decrCode[decrunchinitlength + asm_dc_mdst   +  0] = aSource->data[0];
+		decrCode[decrunchinitlength + asm_dc_mdst   +  1] = aSource->data[1];
+		decrCode[decrunchinitlength + asm_dc_mdst   +  2] = 0;
+
+		decrCode[decrunchinitlength + asm_dc_jumpto + 1] = address      &  0xff;
+		decrCode[decrunchinitlength + asm_dc_jumpto + 2] = address      >> 8;
+
+		target[0] = 0x01;
+		target[1] = 0x20;
+
+		printf("Decruncher length = %d\n", decrLen);
+
+		for(i = 0; i < decrLen; ++i)
+		{
+			target[i + 2] = decrCode[i];
+		}
+
+		printf("Crunched prg starts with:\n");
+		for(int i=0; i<16; i++)
+			printf("%02X ", obuf[i]);
+		printf("\n");
+
+		for(i = 0; i < put; ++i)
+		{
+			target[i + 2 + decrLen] = obuf[i];
+		}
+
 	}
-
-	printf("\n");
-	printf("Packed Start address:    0x%08X\n", packedAddress);
-	printf("Packed size:             0x%08X\n", packLen);
-	printf("Packed end address:      0x%08X\n", packedAddress+packLen);
-	printf("\n");
-
-	target[0] = (packedAddress      ) & 0xff;				// Load address
-	target[1] = (packedAddress >>  8) & 0xff;
-	target[2] = (packedAddress >> 16) & 0xff;
-	target[3] = (packedAddress >> 24) & 0xff;
-	target[4] = aSource->data[0];							// Depack to address
-	target[5] = aSource->data[1];
-	target[6] = aSource->data[2];
-	target[7] = aSource->data[3];
-
-	for(i = 0; i < put; ++i)
+	else
 	{
-		target[i + 8] = obuf[i];
+		uint startAddress = (aSource->data[3] << 24) | (aSource->data[2] << 16) | (aSource->data[1] << 8) | aSource->data[0];
+
+		printf("\n");
+		printf("Original address:        0x%08X\n", startAddress);
+		printf("Original size:           0x%08X\n", ibufSize);
+		printf("Original end address:    0x%08X\n", startAddress+ibufSize);
+		
+		// -4 was -6 to end exactly at the end of the file, but it looks like I need 2 extra bytes overflow
+		uint packedAddress = startAddress + (ibufSize - packLen - 4 + margin);
+
+		printf("Original packed address: 0x%08X\n", packedAddress);
+
+		if (isRelocated)
+		{
+			packedAddress = (address + ibufSize) - packLen - 8;
+			printf("\nRelocated file to:       0x%08X\n", packedAddress);
+		}
+
+		printf("\n");
+		printf("Packed Start address:    0x%08X\n", packedAddress);
+		printf("Packed size:             0x%08X\n", packLen);
+		printf("Packed end address:      0x%08X\n", packedAddress+packLen);
+		printf("\n");
+
+		target[0] = (packedAddress      ) & 0xff;				// Load address
+		target[1] = (packedAddress >>  8) & 0xff;
+		target[2] = (packedAddress >> 16) & 0xff;
+		target[3] = (packedAddress >> 24) & 0xff;
+		target[4] = aSource->data[0];							// Depack to address
+		target[5] = aSource->data[1];
+		target[6] = aSource->data[2];
+		target[7] = aSource->data[3];
+
+		for(i = 0; i < put; ++i)
+		{
+			target[i + 8] = obuf[i];
+		}
 	}
 
 	free(ibuf);

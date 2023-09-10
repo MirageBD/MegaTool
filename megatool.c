@@ -39,7 +39,8 @@ int main(int argc, char * argv[])
 		printf("\n");
 		printf("       ADD ADDRESS: megatool -a <infile> <address>\n");
 		printf("       IFFL PACK:   megatool -i <infile1> [infile2] [infile3] [...] outfile\n");
-		printf("       CRUNCH:      megatool -c [-r xxxxxxxx] <filename>> \n");
+		printf("       CRUNCH:      megatool -c [-[e|r] xxxxxxxx] <filename>> \n");
+		printf("                                 -e: Make executable with start address xxxxxxxx.\n");
 		printf("                                 -r: Relocate file to hex address xxxxxxxx.\n");
 		printf("\n");
 		return 0;
@@ -202,6 +203,7 @@ int main(int argc, char * argv[])
 		File myFile;
 		File myMCFile;
 		char* fileName;
+		bool isExecutable = false;		
 		bool isRelocated = false;
 		uint address = 0;
 
@@ -212,12 +214,19 @@ int main(int argc, char * argv[])
 		else
 		{
 			int i;
+
 			char *s = argv[3];
 			fileName = argv[4];
 
-			if(strcmp(argv[2], "-r") == 0)
+			if(strcmp(argv[2], "-e") == 0)
+			{
+				isExecutable = true;
+				// printf("Creating executable at $2001\n");
+			}
+			else if(strcmp(argv[2], "-r") == 0)
 			{
 				isRelocated = true;
+				// printf("Relocating to:           0x%08X\n", address);
 			}
 			else
 			{
@@ -225,8 +234,8 @@ int main(int argc, char * argv[])
 				return -1;
 			}
 
-			uint address = ReadAddress(argv[3]);
-			printf("Relocating to:           0x%08X\n", address);
+			address = ReadAddress(argv[3]);
+			printf("address: 0x%08X\n", address);
 		}
 
 		if(!readFile(&myFile, fileName))
@@ -235,7 +244,7 @@ int main(int argc, char * argv[])
 			return -1;
 		}
 
-		if(!crunch(&myFile, &myMCFile, address, isRelocated))
+		if(!crunch(&myFile, &myMCFile, address, isExecutable, isRelocated))
 		{
 			freeFile(&myFile);
 			return -1;
