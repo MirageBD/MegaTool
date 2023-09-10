@@ -22,7 +22,7 @@ all: $(OBJECTS)
 run: all
 	./megatool
 	./megatool -a ./bin/test2.bin 00004000
-	./megatool -c -e 00004000 ./bin/test2.bin.addr
+	./megatool -c -e 00002014 ./bin/test2.bin.addr
 
 	cmd.exe /c $(XMEGA65) -prg ./bin/test2.bin.addr.mc
 

@@ -4,28 +4,10 @@
 
 ; -----------------------------------------------------------------------------------------------
 
-; UNPACKED
-;    FF 00 F4 39 FF AB FF 16 F8 A3 A3   FF FF FF FF FF
-; PACKED
-; 74 FF 00 F4 39 FF AB FF 16 F8 A3 A3   FF FE E8 F5
-
-
-; $000000 -> $000000: Lit(length = 12, F)
-; $000000 -> $00000c: Mat(offset = -1, length = 245, F)
-; $00000f -> $000101: Lit(length = 11, F)
-; $000010 -> $00010c: Mat(offset = -1, length = 244, F)
-; $00001d -> $000200: Mat(offset = -256, length = 2, T)
-; $00001e -> $000202: Lit(length = 2, F)
-; $00001e -> $000204: Mat(offset = -4, length = 2, F)
-; $000022 -> $000206: Lit(length = 4, F)
-; $000023 -> $00020a: Mat(offset = -511, length = 246, F)
-
 .segment "ZEROPAGE" : zeropage
 
 dc_bits		= $02
 dc_get_zp	= $04
-
-decrunch
 
 dloop
 		jsr getnextbit									; after this, carry is 0, bits = 01010101
@@ -134,11 +116,7 @@ dc_cmdh	.byte $00										; cmd hi
 
 dc_end
 dc_jumpto
-		ldx $c000
-
-;		jmp $2014
-
-;		jmp $c0de
+		jmp $c0de
 
 ; -----------------------------------------------------------------------------------------------
 
