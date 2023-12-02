@@ -16,5 +16,6 @@ typedef struct
 void freeFile(File *aFile);
 bool readFile(File *aFile, const char *fileName);
 bool writeFile(File *aFile, const char *fileName, const char *extension);
+bool writeFileWithExtension(File *aFile, const char *fileName);
 
 #endif // _file_h_

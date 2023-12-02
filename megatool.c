@@ -1,6 +1,7 @@
 #include "megatool.h"
 #include "file.h"
 #include "cruncher.h"
+#include "imgconvert.h"
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -37,11 +38,12 @@ int main(int argc, char * argv[])
 		printf("\n");
 		printf("MEGATool usage:\n");
 		printf("\n");
-		printf("       ADD ADDRESS: megatool -a <infile> <address>\n");
-		printf("       IFFL PACK:   megatool -i <infile1> [infile2] [infile3] [...] outfile\n");
-		printf("       CRUNCH:      megatool -c [-[e|r] xxxxxxxx] <filename>> \n");
+		printf("       ADD ADDRESS:     megatool -a <infile> <address>\n");
+		printf("       IFFL PACK:       megatool -i <infile1> [infile2] [infile3] [...] outfile\n");
+		printf("       CRUNCH:          megatool -c [-[e|r] xxxxxxxx] <filename>> \n");
 		printf("                                 -e: Make executable with start address xxxxxxxx.\n");
 		printf("                                 -r: Relocate file to hex address xxxxxxxx.\n");
+		printf("       IMAGE CONVERT:   megatool -x <infile1> outfile\n");
 		printf("\n");
 		return 0;
 	}
@@ -263,4 +265,48 @@ int main(int argc, char * argv[])
 
 		return 0;
 	}
+
+
+
+
+
+
+	else if(strcmp(argv[1], "-x") == 0) // image convert
+	{
+		printf("\nMEGATOOL - IMAGE CONVERT ------------------------------------------------------------\n\n");
+
+		File myFile;
+		File myMIFile;
+		char* fileName;
+		char* outfileName;
+		uint address = 0;
+
+		fileName = argv[2];
+		outfileName = argv[3];
+
+		if(!readFile(&myFile, fileName))
+		{
+			printf("Error Opening file \"%s\", aborting.\n", fileName);
+			return -1;
+		}
+
+		if(!imgconvert(&myFile, &myMIFile))
+		{
+			freeFile(&myFile);
+			return -1;
+		}
+
+		if(!writeFileWithExtension(&myMIFile, outfileName))
+		{
+			printf("Error Writing file \"%s\", aborting.\n", myMIFile.name);
+			return -1;
+		}
+
+		printf("MegaImageConvert: \"%s\" -> \"%s\"\n", myFile.name, myMIFile.name);
+
+		freeFile(&myFile);
+		freeFile(&myMIFile);
+
+		return 0;
+	}	
 }

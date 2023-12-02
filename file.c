@@ -77,3 +77,35 @@ bool writeFile(File *aFile, const char *fileName, const char *extension)
 	fclose(fp);
 	return true;
 }
+
+bool writeFileWithExtension(File *aFile, const char *fileName)
+{
+	FILE *fp = NULL;
+	size_t length;
+	char *ext;
+
+	length = strlen(fileName);
+	aFile->name = (char *)malloc(length);
+
+	if(aFile->name == NULL)
+	{
+		return false;
+	}
+
+	strncpy(aFile->name, fileName, length);
+
+	fp = fopen(aFile->name, "wb");
+	if(fp == NULL)
+	{
+		return false;
+	}
+
+	if(fwrite(aFile->data, 1, aFile->size, fp) != aFile->size)
+	{
+		fclose(fp);
+		return false;
+	}
+
+	fclose(fp);
+	return true;
+}

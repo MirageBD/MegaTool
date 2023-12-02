@@ -17,14 +17,15 @@ all: $(OBJECTS)
 
 	gcc -O3 converttoheader.c -o converttoheader.exe
 	./converttoheader.exe DecrZero.prg DecrZeroInit.prg DecrZero.symbols DecrZeroInit.symbols DecrZero.h
-	gcc -O3 file.c cruncher.c megatool.c -o megatool.exe
+	gcc -O3 file.c cruncher.c megatool.c imgconvert.c -o megatool.exe
 
 run: all
 	./megatool
-	./megatool -a ./bin/boot.prg 00002100
-	./megatool -c -e 00002100 ./bin/boot.prg.addr > test.crunch.txt
+	./megatool -x ./bin/test.raw ./bin/test.mim
+#	./megatool -a ./bin/boot.prg 00002100
+#	./megatool -c -e 00002100 ./bin/boot.prg.addr > test.crunch.txt
 
-	cmd.exe /c $(XMEGA65) -prg ./bin/boot.prg.addr.mc
+#	cmd.exe /c $(XMEGA65) -prg ./bin/boot.prg.addr.mc
 
 #	./megatool -a ./bin/test.bin 00020000
 #	./megatool -a ./bin/test2.bin 00010000
