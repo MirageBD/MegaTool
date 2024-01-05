@@ -8,6 +8,9 @@
 
 // .segment "DECRZEROINIT"
 
+// .segmentdef DECRZEROINIT [start=$2001, max=$7fff]
+
+.cpu _45gs02
 
 *=$2001
 			.word basicend
@@ -16,7 +19,7 @@
 			.byte $30									// 0
 			.byte $3a									// :
 			.byte $9e									// sys xxxx
-			.byte .sprintf("%d", $2011)					// sys xxxx
+			.text toIntString($2011)
 			.byte 0
 basicend:	.byte 0
 			.byte 0
