@@ -16,6 +16,8 @@
 dc_bits		= $02
 dc_get_zp	= $04
 
+; empty space to line up with kickass version
+
 dloop
 		jsr getnextbit									; after this, carry is 0, bits = 01010101
 		bcs match
@@ -27,15 +29,19 @@ dloop
 		sta $d707										; inline DMA copy
 		.byte $00										; end of job options
 		.byte $00										; copy
-dc_llen	.word $0000										; count
-dc_lsrc	.word $0000										; src
+dc_llen
+		.word $0000										; count
+dc_lsrc
+		.word $0000										; src
 		.byte $00										; src bank
-dc_ldst	.word $0000										; dst
+dc_ldst
+		.word $0000										; dst
 		.byte $00										; dst bank
 		.byte $00										; cmd hi
 		.word $0000										; modulo, ignored
 
-addget	clc
+addget
+		clc
 		tya
 		adc z:dc_lsrc+0
 		sta z:dc_lsrc+0
@@ -69,20 +75,25 @@ match
 		lda z:offsets,x
 		beq m8
 
-:		jsr rolnextbit									; Get bits < 8
+:
+		jsr rolnextbit									; Get bits < 8
 		bcs :-
 		bmi mshort
 
-m8		eor #$ff										; Get byte
+m8
+		eor #$ff										; Get byte
 		tay
 		jsr getnextbyte
 		bra mdone
 
 		;.byte $ae ; = jmp mdone (LDX $FFA0)
 
-mshort	ldy #$ff
+mshort
+		ldy #$ff
 
-mdone	;clc
+mdone
+
+		;clc
 								; HRMPF! HAVE TO DO THIS NASTY SHIT TO WORK AROUND DMA BUG :(((((
 		ldx #$00				; assume source addressing is going to be linear
 		cmp #$ff				; compare A with ff
@@ -90,7 +101,8 @@ mdone	;clc
 		cpy #$ff				; compare Y with ff
 		bne :+
 		ldx #%00000010			; FFFF = -1 offset -> set source addressing to HOLD
-:		stx z:dc_cmdh
+:
+		stx z:dc_cmdh
 
 		clc
 		adc z:dc_mdst+0
@@ -107,12 +119,16 @@ mdone	;clc
 		sta $d707										; inline DMA copy
 		.byte $00										; end of job options
 		.byte $00										; copy
-dc_mlen	.word $0000										; count
-dc_msrc	.word $0000										; src
+dc_mlen
+		.word $0000										; count
+dc_msrc
+		.word $0000										; src
 		.byte $00										; src bank and flags
-dc_mdst	.word $0000										; dst
+dc_mdst
+		.word $0000										; dst
 		.byte $00										; dst bank and flags
-dc_cmdh	.byte $00										; cmd hi
+dc_cmdh
+		.byte $00										; cmd hi
 		.word $0000										; modulo, ignored
 
 		ldy z:dc_mlen
@@ -127,7 +143,8 @@ dc_jumpto
 
 ; -----------------------------------------------------------------------------------------------
 
-addput	clc
+addput
+		clc
 		tya
 		adc dc_ldst+0
 		sta dc_ldst+0
@@ -150,12 +167,15 @@ addput	clc
 		sta dc_mdst+2
 		rts
 
-getlen	lda #1
-glloop	jsr getnextbit
+getlen
+		lda #1
+glloop
+		jsr getnextbit
 		bcc glend
 		jsr rolnextbit									; if next bit is 1 then ROL the next-next bit into A
 		bpl glloop										; if the highest bit is now still 0, continue. this means highest len is 255
-glend	rts
+glend
+		rts
 
 rolnextbit
 		jsr getnextbit
@@ -170,7 +190,8 @@ getnextbit
 		rol
 		sta dc_bits
 		pla
-dgend	rts
+dgend
+		rts
 
 getnextbyte
 		ldx z:dc_lsrc+3
@@ -187,7 +208,8 @@ getnextbyte
 
 ; -----------------------------------------------------------------------------------------------
 
-offsets	.byte %11011111 ; 3		$DF						; short offsets
+offsets
+		.byte %11011111 ; 3		$DF						; short offsets
 		.byte %11111011 ; 6     $FB
 		.byte %00000000 ; 8		$00
 		.byte %10000000 ; 10    $80
