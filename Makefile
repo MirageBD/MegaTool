@@ -22,9 +22,10 @@ all: $(OBJECTS)
 allkickass: $(OBJECTS)
 # call like this: make allkickass KSJAR=./KickAss65CE02-5.24f.jar
 	java -cp $(KSJAR) kickass.KickAssembler65CE02 -vicesymbols -showmem -odir . -binfile DecrZero.kickasm
+	java -cp $(KSJAR) kickass.KickAssembler65CE02 -vicesymbols -showmem -odir . -binfile DecrZeroinit.kickasm
 
 	gcc -O3 converttoheader.c -o converttoheader.exe
-	./converttoheader.exe DecrZero.prg DecrZeroInit.prg DecrZero.symbols DecrZeroInit.symbols DecrZero.h
+	./converttoheader.exe DecrZero.bin DecrZeroInit.bin DecrZero.symbols DecrZeroInit.symbols DecrZero.h
 	gcc -O3 file.c cruncher.c megatool.c imgconvert.c -o megatool.exe
 
 run: all
