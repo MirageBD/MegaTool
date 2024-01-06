@@ -25,7 +25,7 @@ allkickass: $(OBJECTS)
 	java -cp $(KSJAR) kickass.KickAssembler65CE02 -vicesymbols -showmem -odir . -binfile DecrZeroinit.kickasm
 
 	gcc -O3 converttoheader.c -o converttoheader.exe
-	./converttoheader.exe DecrZero.bin DecrZeroInit.bin DecrZero.symbols DecrZeroInit.symbols DecrZero.h
+	./converttoheader.exe DecrZero.bin DecrZeroInit.bin DecrZero.vs DecrZeroInit.vs DecrZero.h
 	gcc -O3 file.c cruncher.c megatool.c imgconvert.c -o megatool.exe
 
 run: all
@@ -43,3 +43,12 @@ run: all
 #	./megatool -c ./bin/test2.bin.addr
 #	./megatool -c ./bin/test3.bin.addr
 #	./megatool -i ./bin/test.bin.addr.mc ./bin/test2.bin.addr.mc ./bin/alldata.bin
+
+clean:
+	rm *.exe
+	rm *.o
+	rm *.bin
+	rm *.symbols
+	rm *.vs
+	rm *.prg
+	rm DecrZero.h
