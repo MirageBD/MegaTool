@@ -18,6 +18,7 @@ uint ReadAddress(char* s)
 	uint address = 0;
 	uint addresssize = strlen(s);
 	// printf("size of address: %d\n", addresssize);
+
 	for(int i = 0; i < addresssize; ++i)
 	{
 		byte c;
@@ -29,6 +30,26 @@ uint ReadAddress(char* s)
 	}
 
 	return address;
+}
+
+int ReadInt(char *s)
+{
+	int val = 0;
+	int valsize = strlen(s);
+
+	for(int i = 0; i < valsize; ++i)
+	{
+		byte c;
+		if(s[i] >= '0' && s[i] <= '9')
+			c = s[i] - '0';
+		else
+			return -1;
+
+		val *= 10;
+		val += c;
+	}
+
+	return val;
 }
 
 int main(int argc, char * argv[])
@@ -43,7 +64,7 @@ int main(int argc, char * argv[])
 		printf("       CRUNCH:          megatool -c [-[e|r] xxxxxxxx] <filename>> \n");
 		printf("                                 -e: Make executable with start address xxxxxxxx.\n");
 		printf("                                 -r: Relocate file to hex address xxxxxxxx.\n");
-		printf("       IMAGE CONVERT:   megatool -x <infile1> outfile\n");
+		printf("       IMAGE CONVERT:   megatool -x width height channels <infile1> outfile\n");
 		printf("\n");
 		return 0;
 	}
@@ -140,7 +161,7 @@ int main(int argc, char * argv[])
 
 		totalsize++;
 
-		// then write all sizes and start addresses into header
+		// then write all start addresses and sizes into header
 		for(int i=0; i<numInFiles; i++)
 		{
 			size_t filesize = myInFiles[i].size - 4;
@@ -279,10 +300,13 @@ int main(int argc, char * argv[])
 		File myMIFile;
 		char* fileName;
 		char* outfileName;
-		uint address = 0;
 
-		fileName = argv[2];
-		outfileName = argv[3];
+		int width = ReadInt(argv[2]);
+		int height = ReadInt(argv[3]);
+		int channels = ReadInt(argv[4]);
+
+		fileName = argv[5];
+		outfileName = argv[6];
 
 		if(!readFile(&myFile, fileName))
 		{
@@ -290,7 +314,7 @@ int main(int argc, char * argv[])
 			return -1;
 		}
 
-		if(!imgconvert(&myFile, &myMIFile))
+		if(!imgconvert(&myFile, &myMIFile, width, height, channels))
 		{
 			freeFile(&myFile);
 			return -1;
