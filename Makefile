@@ -6,7 +6,7 @@
 CC			= gcc
 CA			= ca65mega
 LD			= ld65
-XMEGA65		= H:\xemu\xmega65.exe
+XMEGA65		= D:\PCTOOLS\xemu\xmega65.exe
 
 all: $(OBJECTS)
 	ca65mega -g --cpu 45GS02 -U --feature force_range -o DecrZero.o DecrZero.s
