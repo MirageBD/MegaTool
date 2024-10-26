@@ -668,12 +668,12 @@ int writeOutput()
 	return margin;
 }
 
-bool crunch(File *aSource, File *aTarget, uint address, bool isExecutable, bool isRelocated)
+bool crunch(File *aSource, File *aTarget, uint address, bool isExecutable, bool isRelocated, uint startAddressSize)
 {
 	uint i;
 	byte *target;
 
-	ibufSize = aSource->size - 4;
+	ibufSize = aSource->size - startAddressSize;
 	ibuf     =    (byte*)malloc(ibufSize                  );
 	context  =    (node*)malloc(ibufSize * sizeof(node)   );
 	link     =    (uint*)malloc(ibufSize * sizeof(uint)   );
@@ -682,7 +682,7 @@ bool crunch(File *aSource, File *aTarget, uint address, bool isExecutable, bool 
 	// Load ibuf and clear context
 	for(i = 0; i < ibufSize; ++i)
 	{
-		ibuf[i] = aSource->data[i + 4];
+		ibuf[i] = aSource->data[i + startAddressSize];
 		context[i].cost = 0;
 		link[i] = 0;
 		rleInfo[i].length = 0;
