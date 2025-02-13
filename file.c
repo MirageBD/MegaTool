@@ -52,7 +52,7 @@ bool writeFile(File *aFile, const char *fileName, const char *extension)
 	char *ext;
 
 	length = strlen(fileName);
-	aFile->name = (char *)malloc(length + 4);
+	aFile->name = (char *)malloc(length + strlen(extension)+1);
 
 	if(aFile->name == NULL)
 	{
