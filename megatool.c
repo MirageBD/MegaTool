@@ -2,9 +2,16 @@
 #include "file.h"
 #include "cruncher.h"
 #include "imgconvert.h"
+#include "gfx2code.h"
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+
+
+byte reversenibble(byte b)
+{
+	return (byte)((b >> 4) | ((b & 15) << 4));
+}
 
 uint GetAddressSizeInBytes(char* s)
 {
@@ -66,6 +73,7 @@ int main(int argc, char * argv[])
 		printf("                                 -f: Make executable with start address xxxxxxxx, original start address is 2 bytes.\n");
 		printf("                                 -r: Relocate file to hex address xxxxxxxx.\n");
 		printf("       IMAGE CONVERT:   megatool -x width height channels <infile1> outfile\n");
+		printf("       GRAPHICS2CODE:   megatool -g width height channels <infile1> outfile\n");
 		printf("\n");
 		return 0;
 	}
@@ -337,5 +345,54 @@ int main(int argc, char * argv[])
 		freeFile(&myMIFile);
 
 		return 0;
-	}	
+	}
+
+
+
+
+
+	
+
+
+	else if(strcmp(argv[1], "-g") == 0) // gfx2code
+	{
+		printf("\nMEGATOOL - GRAPHICS2CODE ------------------------------------------------------------\n\n");
+
+		File myFile;
+		File myMIFile;
+		char* fileName;
+		char* outfileName;
+
+		int width = ReadInt(argv[2]);
+		int height = ReadInt(argv[3]);
+		int channels = ReadInt(argv[4]);
+
+		fileName = argv[5];
+		outfileName = argv[6];
+
+		if(!readFile(&myFile, fileName))
+		{
+			printf("Error Opening file \"%s\", aborting.\n", fileName);
+			return -1;
+		}
+
+		if(!gfx2code(&myFile, &myMIFile, width, height, channels))
+		{
+			freeFile(&myFile);
+			return -1;
+		}
+
+		if(!writeFileWithExtension(&myMIFile, outfileName))
+		{
+			printf("Error Writing file \"%s\", aborting.\n", myMIFile.name);
+			return -1;
+		}
+
+		printf("MegaGfx2Code: \"%s\" -> \"%s\"\n", myFile.name, myMIFile.name);
+
+		freeFile(&myFile);
+		freeFile(&myMIFile);
+
+		return 0;
+	}
 }

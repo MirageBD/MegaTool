@@ -17,7 +17,7 @@ all: $(OBJECTS)
 
 	gcc -O3 converttoheader.c -o converttoheader.exe
 	./converttoheader.exe DecrZero.prg DecrZeroInit.prg DecrZero.symbols DecrZeroInit.symbols DecrZero.h
-	gcc -O3 file.c cruncher.c megatool.c imgconvert.c -o megatool.exe
+	gcc -O3 file.c cruncher.c megatool.c imgconvert.c gfx2code.c -o megatool.exe
 
 allkickass: $(OBJECTS)
 # call like this: make allkickass KSJAR=./KickAss65CE02-5.24f.jar

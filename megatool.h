@@ -16,4 +16,6 @@ typedef enum { false = 0, true = 1 } bool;
 
 #define memSize 393216 // $60000 for M65 for now
 
+byte reversenibble(byte b);
+
 #endif // _bb_h_

@@ -1,10 +1,9 @@
 #include "megatool.h"
-#include "imgconvert.h"
-#include "cruncher.h"
+#include "gfx2code.h"
 #include <stdio.h>
 #include <stdlib.h>
 
-bool imgconvert(File *aSource, File *aTarget, int width, int height, int channels)
+bool gfx2code(File *aSource, File *aTarget, int width, int height, int channels)
 {
 	uint x, y;
 	byte *target;
@@ -19,7 +18,7 @@ bool imgconvert(File *aSource, File *aTarget, int width, int height, int channel
 	target = aTarget->data;
 
 	if(channels == 3)
-	{		
+	{
 		for(y = 0; y < height; y++)
 		{
 			for(x = 0; x < width; x++)
