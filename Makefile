@@ -26,13 +26,14 @@ allkickass: $(OBJECTS)
 
 	gcc -O3 converttoheader.c -o converttoheader.exe
 	./converttoheader.exe DecrZero.bin DecrZeroInit.bin DecrZero.vs DecrZeroInit.vs DecrZero.h
-	gcc -O3 file.c cruncher.c megatool.c imgconvert.c -o megatool.exe
+	gcc -O3 file.c cruncher.c megatool.c imgconvert.c gfx2code.c -o megatool.exe
 
 run: all
 	./megatool
 #	./megatool -x ./bin/test.raw ./bin/test.mim
 	./megatool -a ./bin/boot.prg 00002100
 	./megatool -c -e 00002100 ./bin/boot.prg.addr > test.crunch.txt
+	./megatool -g 16 16 3 particle.bin pcode.txt
 
 #	cmd.exe /c $(XMEGA65) -prg ./bin/boot.prg.addr.mc
 

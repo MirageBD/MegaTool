@@ -84,7 +84,7 @@ bool writeFileWithExtension(File *aFile, const char *fileName)
 	size_t length;
 	char *ext;
 
-	length = strlen(fileName);
+	length = strlen(fileName) + 1;
 	aFile->name = (char *)malloc(length);
 
 	if(aFile->name == NULL)
