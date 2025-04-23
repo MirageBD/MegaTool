@@ -4,6 +4,6 @@
 #include "megatool.h"
 #include "file.h"
 
-bool gfx2code(File *aSource, File *aTarget, int width, int height, int channels);
+bool gfx2code(File *aSource);
 
 #endif // _gfx2code_h_

@@ -33,7 +33,7 @@ run: all
 #	./megatool -x ./bin/test.raw ./bin/test.mim
 	./megatool -a ./bin/boot.prg 00002100
 	./megatool -c -e 00002100 ./bin/boot.prg.addr > test.crunch.txt
-	./megatool -g 16 16 3 particle.bin pcode.txt
+	./megatool -g particle.bin pcode.txt
 
 #	cmd.exe /c $(XMEGA65) -prg ./bin/boot.prg.addr.mc
 

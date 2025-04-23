@@ -73,7 +73,7 @@ int main(int argc, char * argv[])
 		printf("                                 -f: Make executable with start address xxxxxxxx, original start address is 2 bytes.\n");
 		printf("                                 -r: Relocate file to hex address xxxxxxxx.\n");
 		printf("       IMAGE CONVERT:   megatool -x width height channels <infile1> outfile\n");
-		printf("       GRAPHICS2CODE:   megatool -g width height channels <infile1> outfile\n");
+		printf("       GRAPHICS2CODE:   megatool -g width height channels <infile1>\n");
 		printf("\n");
 		return 0;
 	}
@@ -359,16 +359,9 @@ int main(int argc, char * argv[])
 		printf("\nMEGATOOL - GRAPHICS2CODE ------------------------------------------------------------\n\n");
 
 		File myFile;
-		File myMIFile;
 		char* fileName;
-		char* outfileName;
 
-		int width = ReadInt(argv[2]);
-		int height = ReadInt(argv[3]);
-		int channels = ReadInt(argv[4]);
-
-		fileName = argv[5];
-		outfileName = argv[6];
+		fileName = argv[2];
 
 		if(!readFile(&myFile, fileName))
 		{
@@ -376,22 +369,15 @@ int main(int argc, char * argv[])
 			return -1;
 		}
 
-		if(!gfx2code(&myFile, &myMIFile, width, height, channels))
+		if(!gfx2code(&myFile))
 		{
 			freeFile(&myFile);
 			return -1;
 		}
 
-		if(!writeFileWithExtension(&myMIFile, outfileName))
-		{
-			printf("Error Writing file \"%s\", aborting.\n", myMIFile.name);
-			return -1;
-		}
-
-		printf("MegaGfx2Code: \"%s\" -> \"%s\"\n", myFile.name, myMIFile.name);
+		// printf("MegaGfx2Code: \"%s\" -> \"%s\"\n", myFile.name, myMIFile.name);
 
 		freeFile(&myFile);
-		freeFile(&myMIFile);
 
 		return 0;
 	}
