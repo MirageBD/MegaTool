@@ -74,6 +74,7 @@ int main(int argc, char * argv[])
 		printf("                                 -r: Relocate file to hex address xxxxxxxx.\n");
 		printf("       IMAGE CONVERT:   megatool -x width height channels <infile1> outfile\n");
 		printf("       GRAPHICS2CODE:   megatool -g width height channels <infile1>\n");
+		printf("       INCBIN:          megatool -b <infile1> [infile2] [infile3] [...] outfile\n");
 		printf("\n");
 		return 0;
 	}
@@ -381,4 +382,111 @@ int main(int argc, char * argv[])
 
 		return 0;
 	}
+
+
+
+
+
+
+	else if(strcmp(argv[1], "-b") == 0) // INCBIN pack
+	{
+		printf("\nMEGATOOL - INCBIN ------------------------------------------------------------\n\n");
+
+		int numInFiles = argc-3;
+		File* myInFiles = (File*)malloc(numInFiles * sizeof(File));
+		File myOutFile;
+
+		uint startaddress = 0;
+		uint endaddress = 0;
+
+		printf("Analyzing %d file sizes.\n", numInFiles);
+
+		for(int i=0; i<numInFiles; i++)
+		{
+			char* filename = argv[i+2];
+			if(!readFile(&myInFiles[i], filename))
+			{
+				printf("Error Opening file \"%s\", aborting.\n", filename);
+				return -1;
+			}
+
+			uint filesize = myInFiles[i].size;
+
+			printf("%s: filesize: %08X\n", filename, filesize);
+
+			if(i==0) // first file is the executable.
+			{
+				startaddress = myInFiles[i].data[0] + (myInFiles[i].data[1] << 8);
+				printf("%s: Executable start address: %08X\n", filename, startaddress);
+				endaddress = startaddress + filesize;
+			}
+			else
+			{
+				uint binstartaddress = myInFiles[i].data[0] + (myInFiles[i].data[1] << 8) + (myInFiles[i].data[2] << 16) + (myInFiles[i].data[3] << 24);
+				printf("%s: Binary start address: %08X\n", filename, binstartaddress);
+				if(binstartaddress < startaddress)
+					startaddress = binstartaddress;
+				if(binstartaddress + filesize > endaddress)
+					endaddress = binstartaddress + filesize;
+			}
+		}
+
+		printf("\nCalculated start address: 0x%08X\n", startaddress);
+		printf("Calculated end address: 0x%08X\n", endaddress);
+
+		uint totalsize = endaddress-startaddress;
+		printf("Calculated size: 0x%08X\n\n", totalsize);
+
+		File *aTarget = &myOutFile;
+		aTarget->size = totalsize;
+		aTarget->data = (byte*)malloc(totalsize);
+		byte* target = aTarget->data;
+
+		for(int j=0; j<totalsize; j++)
+			target[j] = 0;
+
+		target[0] = startaddress & 0xff;
+		target[1] = (startaddress >> 8) & 0xff;
+
+		for(int i=0; i<numInFiles; i++)
+		{
+			if(i == 0)
+			{
+				uint exestartaddress = myInFiles[i].data[0] + (myInFiles[i].data[1] << 8);
+				uint targetaddress = exestartaddress-startaddress+2;
+				printf("File %d target address: 0x%08X\n", i, targetaddress);
+				for(int j=0; j<myInFiles[i].size-2; j++)
+				{
+					target[targetaddress+j] = myInFiles[i].data[j+2];
+				}
+			}
+			else
+			{
+				uint binstartaddress = myInFiles[i].data[0] + (myInFiles[i].data[1] << 8) + (myInFiles[i].data[2] << 16) + (myInFiles[i].data[3] << 24);
+				uint targetaddress = binstartaddress-startaddress+2;
+				printf("File %d target address: 0x%08X\n", i, targetaddress);
+				for(int j=0; j<myInFiles[i].size-4; j++)
+				{
+					target[targetaddress+j] = myInFiles[i].data[j+4];
+				}
+			}
+		}
+
+		if(!writeFile(&myOutFile, argv[argc-1], "\0"))
+		{
+			printf("Error Writing file \"%s\", aborting.\n", myOutFile.name);
+			return -1;
+		}
+
+		printf("\nMegaINCBIN: wrote %s\n", myOutFile.name);
+
+		for(int i = 0; i<numInFiles; i++)
+		{
+			freeFile(&myInFiles[i]);
+		}
+
+		freeFile(&myOutFile);
+
+		return 0;		
+	}	
 }

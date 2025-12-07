@@ -31,9 +31,9 @@ allkickass: $(OBJECTS)
 run: all
 	./megatool
 #	./megatool -x ./bin/test.raw ./bin/test.mim
-	./megatool -a ./bin/boot.prg 00002100
-	./megatool -c -e 00002100 ./bin/boot.prg.addr > test.crunch.txt
-	./megatool -g particle.bin pcode.txt
+#	./megatool -a ./bin/boot.prg 00002100
+#	./megatool -c -e 00002100 ./bin/boot.prg.addr > test.crunch.txt
+	./megatool -b ./bin/boot.prg.addr ./bin/test.bin.addr ./bin/boot.prg.combined
 
 #	cmd.exe /c $(XMEGA65) -prg ./bin/boot.prg.addr.mc
 
